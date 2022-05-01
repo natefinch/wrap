@@ -1,3 +1,7 @@
+Note: this code is still in alpha stage. It *works* but it may change subtley in
+the near future, depending on what comes out of
+https://github.com/golang/go/issues/52607.
+
 # wrap
 
 Wrap contains a single method for wrapping one Go error with another.
