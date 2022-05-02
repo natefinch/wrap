@@ -1,40 +1,33 @@
-Note: this code is still in alpha stage. It *works* but it may change subtley in
+Note: this code is still in alpha stage. It *works* but it may change subtly in
 the near future, depending on what comes out of
 https://github.com/golang/go/issues/52607.
 
-# wrap
+# Wrap.With
 
-Wrap contains a single method for wrapping one Go error with another.
+Wrap contains a single method (With) for wrapping one Go error with another.
+Both errors can be extracted by using the usual errors.Is and errors.As.
 
 ```go
-// With returns an error that represents top wrapped over bottom.
-// Unwrap will unwrap the top error first, until it runs out of wrapped
-// errors, and then return the bottom error. This is also the order that
-// Is and As will read the wrapped errors.
-// The returned error's message will read as
-// fmt.Sprintf("%s: %s", top.Error(), bottom.Error()).
-func With(bottom, top error) error {
+// With returns an error that represents front wrapped over back. If back is
+// nil, the returned error is nil.
+//
+// Calling Unwrap in a loop on this error will iteratively unwrap the front
+// error first, until it runs out of wrapped errors, and then return the back
+// error. This is also the order that Is and As will read the wrapped errors.
+//
+// The returned error's message will be the concatenation of the two error strings.
+func With(back, front error) error {
 ```
 
-Both the top and bottom errors will be visible to errors.Is and errors.As. this
+Both the front and back errors will be visible to errors.Is and errors.As. This
 makes it easy to add and retrieve metadata on an existing error without
 squashing the rest of the data in the error. This is especially useful for
 adding sentinel errors. For example, you can add a categorization like NotFound
-or PermissionDenied to a lower level error. Or you can use it as an upward
+or PermissionDenied to a lower level error. Or you can use it like an upward
 context to send side channel data back up the chain to be used in logging or
 metrics.
 
-## Use Cases
-
-The main use case for this function is incredibly common, and I've seen it in
-basically every go application I've ever written. You have a package that
-returns a domain-specific error, like a postgres driver returning pq.ErrNoRows.
-You want to pass that error up the stack to maintain the context of the original
-error, but you don't want your callers to have to know about postgres errors in
-order to know how to deal with this error from your storage layer. With the
-proposed `With` function, you can add metadata via a well-known error type so
-that the error your function returns can be checked consistently, regardless of
-the underlying implementation.
+## Example
 
 ```go
 // SetUserName sets the name of the user with the given id. This method returns 
@@ -89,7 +82,7 @@ func handleError(err error, w http.ResponseWriter) {
 }
 ```
 
-This code doesn't know anything about postgres. It uses the standard errors.Is
+The API code doesn't know anything about postgres. It uses the standard errors.Is
 to check for errors it knows about. But if it then decides to log that error, it
 has full access to the original error's full context if it wants to dig into it
 or just log it.

@@ -15,8 +15,7 @@ import (
 // error first, until it runs out of wrapped errors, and then return the back
 // error. This is also the order that Is and As will read the wrapped errors.
 //
-// The returned error's message will read as fmt.Sprintf("%s: %s",
-// front.Error(), back.Error()).
+// The returned error's message will be the concatenation of the two error strings.
 func With(back, front error) error {
 	if back == nil {
 		return nil
