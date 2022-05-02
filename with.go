@@ -8,21 +8,23 @@ import (
 	reflectlite "reflect"
 )
 
-// With returns an error that represents front wrapped over back. Calling Unwrap
-// in a loop on this error will iteratively unwrap the front error first, until
-// it runs out of wrapped errors, and then return the back error. This is also
-// the order that Is and As will read the wrapped errors. The returned error's
-// message will read as fmt.Sprintf("%s: %s", front.Error(), back.Error()).
+// With returns an error that represents front wrapped over back. If back is
+// nil, the returned error is nil.
+//
+// Calling Unwrap in a loop on this error will iteratively unwrap the front
+// error first, until it runs out of wrapped errors, and then return the back
+// error. This is also the order that Is and As will read the wrapped errors.
+//
+// The returned error's message will read as fmt.Sprintf("%s: %s",
+// front.Error(), back.Error()).
 func With(back, front error) error {
-	if back == nil && front == nil {
+	if back == nil {
 		return nil
 	}
 	if front == nil {
 		return back
 	}
-	if back == nil {
-		return front
-	}
+
 	return stack{front: front, back: back}
 }
 
