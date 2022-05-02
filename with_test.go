@@ -86,3 +86,23 @@ func TestWithAs(t *testing.T) {
 		t.Fatal("failed to find flagged error")
 	}
 }
+
+func TestErrList(t *testing.T) {
+	one := errors.New("one")
+	two := errors.New("two")
+	three := errors.New("three")
+	four := errors.New("four")
+	five := errors.New("five")
+	six := errors.New("six")
+
+	fivesix := wrap.With(six, five)
+	threefour := wrap.With(four, three)
+	onetwo := wrap.With(two, one)
+	oneToFour := wrap.With(threefour, onetwo)
+	all := wrap.With(fivesix, oneToFour)
+	actual := all.Error()
+	expected := "one: two: three: four: five: six"
+	if actual != expected {
+		t.Fatalf("expected %v but got %v", expected, actual)
+	}
+}
