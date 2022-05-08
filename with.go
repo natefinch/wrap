@@ -3,7 +3,7 @@ package wrap
 import (
 	"errors"
 	// reflectlite is a package internal to the stdlib, but its API is the same
-	// as reflect. This rename keeps the code below identical to that in the
+	// as reflect. This renaming keeps the code below identical to that in the
 	// internals of the errors package.
 	reflectlite "reflect"
 )
@@ -33,7 +33,7 @@ type stack struct {
 	back  error
 }
 
-// As impements the interface needed for errors.Is. It checks s.front first, and
+// Is implements the interface needed for errors.Is. It checks s.front first, and
 // then s.back.
 func (s stack) Is(target error) bool {
 	// This code copied exactly from errors.Is, minus the code to unwrap if the
@@ -58,7 +58,7 @@ func (s stack) Is(target error) bool {
 	return false
 }
 
-// As impements the interface needed for errors.As. It checks s.front first, and
+// As implements the interface needed for errors.As. It checks s.front first, and
 // then s.back.
 func (s stack) As(target interface{}) bool {
 	// This code copied exactly from errors.As, minus the code to unwrap if the
